@@ -4,19 +4,35 @@ window.__ModuleLoader__.load({
     const React = require('react');
     const h = React.createElement;
 
-    /** Region ids are the tokens used by both the stored state and the hide attribute. */
-    const REGION_IDS = [
-      'sidebar',
-      'center',
-      'header',
-      'chat',
-      'composer',
-      'rightbar',
-      'bottom',
-      'leading',
-      'handles',
-      'overlay',
+    /**
+     * Every switchable region: id (stored token + hide attribute), its group, and its
+     * label key. Coarse regions keep their original ids; finer ones target `data-slot`
+     * anchors, which the slot outlet renders as `display: contents` wrappers.
+     */
+    const REGIONS = [
+      { id: 'sidebar', group: 'groupSidebar', label: 'regionSidebar' },
+      { id: 'sidebarSessions', group: 'groupSidebar', label: 'regionSidebarSessions' },
+      { id: 'sidebarPanels', group: 'groupSidebar', label: 'regionSidebarPanels' },
+      { id: 'sidebarSettings', group: 'groupSidebar', label: 'regionSidebarSettings' },
+      { id: 'center', group: 'groupSession', label: 'regionCenter' },
+      { id: 'header', group: 'groupSession', label: 'regionHeader' },
+      { id: 'headerActions', group: 'groupSession', label: 'regionHeaderActions' },
+      { id: 'chat', group: 'groupSession', label: 'regionChat' },
+      { id: 'chatActions', group: 'groupSession', label: 'regionChatActions' },
+      { id: 'composer', group: 'groupSession', label: 'regionComposer' },
+      { id: 'composerAttachments', group: 'groupSession', label: 'regionComposerAttachments' },
+      { id: 'composerModel', group: 'groupSession', label: 'regionComposerModel' },
+      { id: 'composerPermission', group: 'groupSession', label: 'regionComposerPermission' },
+      { id: 'composerPlan', group: 'groupSession', label: 'regionComposerPlan' },
+      { id: 'rightbar', group: 'groupShell', label: 'regionRightbar' },
+      { id: 'rightbarTabs', group: 'groupShell', label: 'regionRightbarTabs' },
+      { id: 'bottom', group: 'groupShell', label: 'regionBottom' },
+      { id: 'leading', group: 'groupShell', label: 'regionLeading' },
+      { id: 'handles', group: 'groupShell', label: 'regionHandles' },
+      { id: 'overlay', group: 'groupShell', label: 'regionOverlay' },
     ];
+    const REGION_IDS = REGIONS.map((region) => region.id);
+    const GROUPS = ['groupSidebar', 'groupSession', 'groupShell'];
     const STORAGE_KEY = 'dsh.ui-visibility.v2';
     const LEGACY_STORAGE_KEY = 'dsh.ui-visibility.v1';
     /* A fresh install hides the composer and its own floating button; the Settings page brings both back. */
@@ -30,12 +46,25 @@ window.__ModuleLoader__.load({
       summaryLabel: '已隐藏',
       master: '全部显示',
       section: '区域',
-      regionSidebar: '左侧边栏',
+      groupSidebar: '侧边栏',
+      groupSession: '会话',
+      groupShell: '外壳',
+      regionSidebar: '左侧边栏（整体）',
+      regionSidebarSessions: '会话列表',
+      regionSidebarPanels: '面板入口',
+      regionSidebarSettings: '设置入口',
       regionCenter: '主面板',
       regionHeader: '会话标题栏',
+      regionHeaderActions: '标题栏按钮',
       regionChat: '对话内容',
+      regionChatActions: '消息按钮',
       regionComposer: '输入区',
+      regionComposerAttachments: '附件区',
+      regionComposerModel: '模型选择',
+      regionComposerPermission: '权限选择',
+      regionComposerPlan: '计划开关',
       regionRightbar: '右侧面板',
+      regionRightbarTabs: '右侧内容',
       regionBottom: '底部栏',
       regionLeading: '顶部工具',
       regionHandles: '拖拽手柄',
@@ -60,12 +89,25 @@ window.__ModuleLoader__.load({
       summaryLabel: 'hidden',
       master: 'Show all',
       section: 'Regions',
-      regionSidebar: 'Left sidebar',
+      groupSidebar: 'Sidebar',
+      groupSession: 'Session',
+      groupShell: 'Shell',
+      regionSidebar: 'Left sidebar (whole)',
+      regionSidebarSessions: 'Session list',
+      regionSidebarPanels: 'Panel entries',
+      regionSidebarSettings: 'Settings entry',
       regionCenter: 'Main panel',
       regionHeader: 'Session header',
+      regionHeaderActions: 'Header actions',
       regionChat: 'Transcript',
+      regionChatActions: 'Message actions',
       regionComposer: 'Composer',
+      regionComposerAttachments: 'Attachments',
+      regionComposerModel: 'Model picker',
+      regionComposerPermission: 'Permission picker',
+      regionComposerPlan: 'Plan toggle',
       regionRightbar: 'Right panel',
+      regionRightbarTabs: 'Right panel content',
       regionBottom: 'Bottom bar',
       regionLeading: 'Top controls',
       regionHandles: 'Resize handles',
@@ -85,18 +127,7 @@ window.__ModuleLoader__.load({
       shortcutHint: 'Shortcut: show / hide every region',
     };
 
-    const REGION_LABELS = {
-      sidebar: 'regionSidebar',
-      center: 'regionCenter',
-      header: 'regionHeader',
-      chat: 'regionChat',
-      composer: 'regionComposer',
-      rightbar: 'regionRightbar',
-      bottom: 'regionBottom',
-      leading: 'regionLeading',
-      handles: 'regionHandles',
-      overlay: 'regionOverlay',
-    };
+    const REGION_LABELS = Object.fromEntries(REGIONS.map((region) => [region.id, region.label]));
 
     /** The immersive preset keeps only the transcript and composer visible. */
     const IMMERSIVE_HIDDEN = ['sidebar', 'header', 'rightbar', 'bottom', 'leading', 'handles', 'overlay'];
@@ -166,7 +197,7 @@ window.__ModuleLoader__.load({
   transform: translateY(-50%);
   width: 278px;
   max-width: calc(100vw - 76px);
-  max-height: min(72vh, 560px);
+  max-height: min(78vh, 640px);
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 10px;
@@ -228,6 +259,8 @@ window.__ModuleLoader__.load({
   color: var(--dsw-alias-label-secondary);
   font-size: 11px;
 }
+.dsh-uiv-group { margin-bottom: 2px; }
+.dsh-uiv-group:last-child { margin-bottom: 0; }
 .dsh-uiv-switch {
   position: relative;
   flex: none;
@@ -330,6 +363,22 @@ html[data-dsh-uiv-hide~="header"] [data-dsh-uiv-region="center"] [data-phase] > 
 html[data-dsh-uiv-hide~="chat"] [data-dsh-uiv-region="center"] [data-conversation-scroll] > :not([data-composer-seat]),
 html[data-dsh-uiv-hide~="composer"] [data-dsh-uiv-region="center"] [data-composer-seat],
 html[data-dsh-uiv-hide~="overlay"] [data-shell-overlay] > [data-slot="shell.overlay"] > :not([data-dsh-uiv-dock]) {
+  display: none !important;
+}
+
+/* Fine-grained regions: each targets one stable slot anchor (display:contents wrapper). */
+html[data-dsh-uiv-hide~="sidebarSessions"] [data-slot="sidebar.workspaces"],
+html[data-dsh-uiv-hide~="sidebarPanels"] [data-slot="sidebar.panellist"],
+html[data-dsh-uiv-hide~="sidebarSettings"] [data-slot="sidebar.settings"],
+html[data-dsh-uiv-hide~="headerActions"] [data-slot="conversation.session.header.actions"],
+html[data-dsh-uiv-hide~="headerActions"] [data-slot="conversation.session.header.utilities"],
+html[data-dsh-uiv-hide~="headerActions"] [data-slot="conversation.session.header.corner"],
+html[data-dsh-uiv-hide~="chatActions"] [data-slot="conversation.chat.assistant-actions"],
+html[data-dsh-uiv-hide~="composerAttachments"] [data-slot="conversation.input.attachments"],
+html[data-dsh-uiv-hide~="composerModel"] [data-slot="conversation.input.model"],
+html[data-dsh-uiv-hide~="composerPermission"] [data-slot="conversation.input.permission"],
+html[data-dsh-uiv-hide~="composerPlan"] [data-slot="conversation.input.plan"],
+html[data-dsh-uiv-hide~="rightbarTabs"] [data-slot="sidebar.right.pane.tab"] {
   display: none !important;
 }
 `;
@@ -565,6 +614,29 @@ html[data-dsh-uiv-hide~="overlay"] [data-shell-overlay] > [data-slot="shell.over
       });
     }
 
+    /** One switch per region, grouped by interface area. */
+    function RegionSwitches({ t, hidden, onToggle }) {
+      return GROUPS.map((group) =>
+        h(
+          'div',
+          { className: 'dsh-uiv-group', key: group },
+          h('div', { className: 'dsh-uiv-section' }, t(group)),
+          REGIONS.filter((region) => region.group === group).map((region) =>
+            h(
+              'div',
+              { className: 'dsh-uiv-row', key: region.id },
+              h('span', { className: 'dsh-uiv-label' }, t(region.label)),
+              h(Switch, {
+                checked: !hidden.has(region.id),
+                label: t(region.label),
+                onToggle: () => onToggle(region.id),
+              }),
+            ),
+          ),
+        ),
+      );
+    }
+
     function Dock({ t }) {
       const [open, setOpen] = React.useState(false);
       const { hidden, dock } = useVisibility();
@@ -658,19 +730,6 @@ html[data-dsh-uiv-hide~="overlay"] [data-shell-overlay] > [data-slot="shell.over
         };
       }, [open]);
 
-      const rows = REGION_IDS.map((id) =>
-        h(
-          'div',
-          { className: 'dsh-uiv-row', key: id },
-          h('span', { className: 'dsh-uiv-label' }, t(REGION_LABELS[id])),
-          h(Switch, {
-            checked: !hidden.has(id),
-            label: t(REGION_LABELS[id]),
-            onToggle: () => toggleRegion(id),
-          }),
-        ),
-      );
-
       const panel = open
         ? h(
             'div',
@@ -714,8 +773,7 @@ html[data-dsh-uiv-hide~="overlay"] [data-shell-overlay] > [data-slot="shell.over
               }),
             ),
             h('div', { className: 'dsh-uiv-sep' }),
-            h('div', { className: 'dsh-uiv-section' }, t('section')),
-            rows,
+            h(RegionSwitches, { t, hidden, onToggle: toggleRegion }),
             h('div', { className: 'dsh-uiv-sep' }),
             h('div', { className: 'dsh-uiv-section' }, t('pluginSection')),
             h(
@@ -787,18 +845,6 @@ html[data-dsh-uiv-hide~="overlay"] [data-shell-overlay] > [data-slot="shell.over
     /** The Settings page: the same switches as the floating panel, reachable while the button is hidden. */
     function SettingsSection({ t }) {
       const { hidden, dock } = useVisibility();
-      const rows = REGION_IDS.map((id) =>
-        h(
-          'div',
-          { className: 'dsh-uiv-row', key: id },
-          h('span', { className: 'dsh-uiv-label' }, t(REGION_LABELS[id])),
-          h(Switch, {
-            checked: !hidden.has(id),
-            label: t(REGION_LABELS[id]),
-            onToggle: () => visibility.toggleRegion(id),
-          }),
-        ),
-      );
 
       return h(
         'div',
@@ -816,8 +862,7 @@ html[data-dsh-uiv-hide~="overlay"] [data-shell-overlay] > [data-slot="shell.over
           }),
         ),
         h('div', { className: 'dsh-uiv-sep' }),
-        h('div', { className: 'dsh-uiv-section' }, t('section')),
-        rows,
+        h(RegionSwitches, { t, hidden, onToggle: (id) => visibility.toggleRegion(id) }),
         h('div', { className: 'dsh-uiv-sep' }),
         h('div', { className: 'dsh-uiv-section' }, t('pluginSection')),
         h(
