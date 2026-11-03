@@ -1,4 +1,4 @@
-# dsg-nb-plugin
+# dsh-nb-plugin
 
 DSH（DeepSeek Harness）客户端插件：用一个右侧浮动按钮 + 设置页，逐项显示或隐藏界面区域。
 
@@ -13,8 +13,8 @@ DSH（DeepSeek Harness）客户端插件：用一个右侧浮动按钮 + 设置�
 ## 安装
 
 ```sh
-npm install dsg-nb-plugin
-dsh plugin --profile desktop add dsg-nb-plugin
+npm install dsh-nb-plugin
+dsh plugin --profile desktop add dsh-nb-plugin
 ```
 
 本地开发时也可以直接链接目录：
@@ -44,7 +44,7 @@ v2 不存在时：有 v1 就迁移（悬浮按钮视为显示），两者都没�
 
 ## 版本
 
-- `1.2.0`：安装默认同时隐藏输入区与悬浮按钮；包名改为 `dsg-nb-plugin`。
+- `1.2.0`：安装默认同时隐藏输入区与悬浮按钮；包名改为 `dsh-nb-plugin`。
 - `1.1.0`：悬浮按钮可隐藏、设置页菜单项、默认隐藏输入区、状态升级到 v2。
 - `1.0.0`：初始版本，纯浮动面板。
 
@@ -52,7 +52,7 @@ v2 不存在时：有 v1 就迁移（悬浮按钮视为显示），两者都没�
 
 扁平 JS 客户端模块，无需构建：
 
-- `client.js`：`window.__ModuleLoader__.load({ id: 'dsg-nb-plugin', ... })` 注册客户端模块、浮动面板、设置页与样式；
+- `client.js`：`window.__ModuleLoader__.load({ id: 'dsh-nb-plugin', ... })` 注册客户端模块、浮动面板、设置页与样式；
 - `index.js`：空 Host 半边；
 - `cordis.patch.yml`：把自身 insert 进 DSH 组合。
 

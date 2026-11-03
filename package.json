@@ -1,5 +1,5 @@
 {
-  "name": "dsg-nb-plugin",
+  "name": "dsh-nb-plugin",
   "version": "1.2.0",
   "description": "DSH UI visibility plugin: show or hide every interface region from a floating panel or the Settings page. A fresh install hides the composer and the floating button; the Settings page brings both back.",
   "type": "module",

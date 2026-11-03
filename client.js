@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: 'dsg-nb-plugin',
+  id: 'dsh-nb-plugin',
   factory(require) {
     const React = require('react');
     const h = React.createElement;
