@@ -20,6 +20,8 @@ window.__ModuleLoader__.load({
       { id: 'chat', group: 'groupSession', label: 'regionChat' },
       { id: 'chatActions', group: 'groupSession', label: 'regionChatActions' },
       { id: 'composer', group: 'groupSession', label: 'regionComposer' },
+      { id: 'heroWorkspace', group: 'groupSession', label: 'regionHeroWorkspace' },
+      { id: 'heroPreset', group: 'groupSession', label: 'regionHeroPreset' },
       { id: 'composerAttachments', group: 'groupSession', label: 'regionComposerAttachments' },
       { id: 'composerModel', group: 'groupSession', label: 'regionComposerModel' },
       { id: 'composerPermission', group: 'groupSession', label: 'regionComposerPermission' },
@@ -59,6 +61,8 @@ window.__ModuleLoader__.load({
       regionChat: '对话内容',
       regionChatActions: '消息按钮',
       regionComposer: '输入区',
+      regionHeroWorkspace: '工作区选择',
+      regionHeroPreset: '模式选择',
       regionComposerAttachments: '附件区',
       regionComposerModel: '模型选择',
       regionComposerPermission: '权限选择',
@@ -75,6 +79,14 @@ window.__ModuleLoader__.load({
       open: '打开界面显隐面板',
       close: '关闭界面显隐面板',
       pluginSection: '插件',
+      pickElement: '拾取元素',
+      pickHint: '点击要隐藏的元素，Esc 取消',
+      pickCancel: '取消',
+      pickFailed: '这个元素定位不到，换个位置再点',
+      customSection: '已拾取元素',
+      customEmpty: '还没有拾取任何元素',
+      clearPicked: '全部恢复',
+      removePicked: '恢复显示',
       dockButton: '悬浮按钮',
       dockHint: '右侧的显隐面板入口',
       settingsNav: '界面显隐',
@@ -102,6 +114,8 @@ window.__ModuleLoader__.load({
       regionChat: 'Transcript',
       regionChatActions: 'Message actions',
       regionComposer: 'Composer',
+      regionHeroWorkspace: 'Workspace picker',
+      regionHeroPreset: 'Mode picker',
       regionComposerAttachments: 'Attachments',
       regionComposerModel: 'Model picker',
       regionComposerPermission: 'Permission picker',
@@ -118,6 +132,14 @@ window.__ModuleLoader__.load({
       open: 'Open UI Visibility panel',
       close: 'Close UI Visibility panel',
       pluginSection: 'Plugin',
+      pickElement: 'Pick element',
+      pickHint: 'Click the element to hide · Esc to cancel',
+      pickCancel: 'Cancel',
+      pickFailed: 'Could not address that element; try a different spot',
+      customSection: 'Picked elements',
+      customEmpty: 'Nothing picked yet',
+      clearPicked: 'Restore all',
+      removePicked: 'Show again',
       dockButton: 'Floating button',
       dockHint: 'The panel trigger on the right edge',
       settingsNav: 'UI Visibility',
@@ -344,6 +366,66 @@ window.__ModuleLoader__.load({
   font-size: 11px;
   line-height: 16px;
 }
+.dsh-uiv-empty {
+  padding: 2px 4px 4px;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 11px;
+  line-height: 16px;
+}
+.dsh-uiv-remove {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+.dsh-uiv-remove:hover {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-bg-layer-2);
+}
+.dsh-uiv-pickbar {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--dsw-alias-border-l1);
+  border-radius: 999px;
+  background: var(--dsw-alias-bg-overlay);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  color: var(--dsw-alias-label-primary);
+  font-size: 12px;
+  line-height: 18px;
+}
+.dsh-uiv-pickcancel {
+  padding: 2px 8px;
+  border: 1px solid var(--dsw-alias-border-l1);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--dsw-alias-label-primary);
+  font: inherit;
+  cursor: pointer;
+}
+.dsh-uiv-pickcancel:hover { background: var(--dsw-alias-bg-layer-2); }
+html[data-dsh-uiv-picking] [data-dsh-uiv-hover] {
+  outline: 2px solid #4d6bfe !important;
+  outline-offset: -2px;
+  background: rgba(77, 107, 254, 0.12) !important;
+}
+html[data-dsh-uiv-picking],
+html[data-dsh-uiv-picking] * { cursor: crosshair !important; }
 
 html[data-dsh-uiv] [data-dsh-uiv-frame] > [data-dsh-uiv-region="sidebar"] { grid-column: 1; grid-row: 1; }
 html[data-dsh-uiv] [data-dsh-uiv-frame] > [data-dsh-uiv-region="center"] { grid-column: 2; grid-row: 1; }
@@ -362,7 +444,7 @@ html[data-dsh-uiv-hide~="rightbar"] [data-side="rightbar"],
 html[data-dsh-uiv-hide~="header"] [data-dsh-uiv-region="center"] [data-phase] > header,
 html[data-dsh-uiv-hide~="chat"] [data-dsh-uiv-region="center"] [data-conversation-scroll] > :not([data-composer-seat]),
 html[data-dsh-uiv-hide~="composer"] [data-dsh-uiv-region="center"] [data-composer-seat],
-html[data-dsh-uiv-hide~="overlay"] [data-shell-overlay] > [data-slot="shell.overlay"] > :not([data-dsh-uiv-dock]) {
+html[data-dsh-uiv-hide~="overlay"] [data-shell-overlay] > [data-slot="shell.overlay"] > :not([data-dsh-uiv-dock]):not([data-dsh-uiv-picker]) {
   display: none !important;
 }
 
@@ -378,7 +460,9 @@ html[data-dsh-uiv-hide~="composerAttachments"] [data-slot="conversation.input.at
 html[data-dsh-uiv-hide~="composerModel"] [data-slot="conversation.input.model"],
 html[data-dsh-uiv-hide~="composerPermission"] [data-slot="conversation.input.permission"],
 html[data-dsh-uiv-hide~="composerPlan"] [data-slot="conversation.input.plan"],
-html[data-dsh-uiv-hide~="rightbarTabs"] [data-slot="sidebar.right.pane.tab"] {
+html[data-dsh-uiv-hide~="rightbarTabs"] [data-slot="sidebar.right.pane.tab"],
+html[data-dsh-uiv-hide~="heroWorkspace"] [data-slot="conversation.hero.workspace"],
+html[data-dsh-uiv-hide~="heroPreset"] [data-slot="conversation.hero.agentPreset"] {
   display: none !important;
 }
 `;
@@ -388,6 +472,22 @@ html[data-dsh-uiv-hide~="rightbarTabs"] [data-slot="sidebar.right.pane.tab"] {
       return new Set(value.filter((id) => REGION_IDS.includes(id)));
     }
 
+    /** Picked selectors are generated by us; still reject CSS-injection characters and duplicates. */
+    function sanitizeCustom(value) {
+      if (!Array.isArray(value)) return [];
+      const seen = new Set();
+      const out = [];
+      for (const entry of value) {
+        if (entry === null || typeof entry !== 'object') continue;
+        const selector = typeof entry.selector === 'string' ? entry.selector.trim() : '';
+        if (selector === '' || /[{}<>\\]/.test(selector) || seen.has(selector)) continue;
+        seen.add(selector);
+        out.push({ selector, label: typeof entry.label === 'string' ? entry.label.slice(0, 60) : selector });
+        if (out.length >= 60) break;
+      }
+      return out;
+    }
+
     /** Read the durable state, migrating the flat v1 array and applying install defaults. */
     function loadState() {
       try {
@@ -395,14 +495,18 @@ html[data-dsh-uiv-hide~="rightbarTabs"] [data-slot="sidebar.right.pane.tab"] {
         if (raw !== null) {
           const parsed = JSON.parse(raw);
           if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)) {
-            return { hidden: sanitizeHidden(parsed.hidden), dock: parsed.dock !== false };
+            return {
+              hidden: sanitizeHidden(parsed.hidden),
+              dock: parsed.dock !== false,
+              custom: sanitizeCustom(parsed.custom),
+            };
           }
         }
         const legacy = window.localStorage.getItem(LEGACY_STORAGE_KEY);
         if (legacy !== null) {
           const parsed = JSON.parse(legacy);
           if (Array.isArray(parsed)) {
-            const migrated = { hidden: sanitizeHidden(parsed), dock: true };
+            const migrated = { hidden: sanitizeHidden(parsed), dock: true, custom: [] };
             persistState(migrated);
             window.localStorage.removeItem(LEGACY_STORAGE_KEY);
             return migrated;
@@ -411,7 +515,7 @@ html[data-dsh-uiv-hide~="rightbarTabs"] [data-slot="sidebar.right.pane.tab"] {
       } catch {
         /* Unreadable storage falls through to the install defaults. */
       }
-      return { hidden: new Set(DEFAULT_HIDDEN), dock: DEFAULT_DOCK };
+      return { hidden: new Set(DEFAULT_HIDDEN), dock: DEFAULT_DOCK, custom: [] };
     }
 
     function persistState(state) {
@@ -421,6 +525,7 @@ html[data-dsh-uiv-hide~="rightbarTabs"] [data-slot="sidebar.right.pane.tab"] {
           JSON.stringify({
             hidden: REGION_IDS.filter((id) => state.hidden.has(id)),
             dock: state.dock,
+            custom: state.custom,
           }),
         );
       } catch {
@@ -428,16 +533,34 @@ html[data-dsh-uiv-hide~="rightbarTabs"] [data-slot="sidebar.right.pane.tab"] {
       }
     }
 
+    /** Picked elements hide through one owned stylesheet, not through inline styles. */
+    function syncCustomStyle(custom) {
+      const existing = document.querySelector('style[data-dsh-uiv-custom]');
+      if (custom.length === 0) {
+        if (existing !== null) existing.remove();
+        return;
+      }
+      let tag = existing;
+      if (tag === null) {
+        tag = document.createElement('style');
+        tag.setAttribute('data-dsh-uiv-custom', '');
+        document.head.append(tag);
+      }
+      tag.textContent = custom.map((entry) => `${entry.selector}{display:none !important}`).join('\n');
+    }
+
     /**
      * One observable state shared by the floating dock and the Settings page:
      * both mount in different roots but always agree.
      */
     function createVisibilityStore() {
-      let state = loadState();
+      let state = { ...loadState(), picking: false };
+      syncCustomStyle(state.custom);
       const listeners = new Set();
       const commit = (next) => {
         state = next;
         persistState(state);
+        syncCustomStyle(state.custom);
         for (const listener of listeners) listener();
       };
       return {
@@ -457,6 +580,11 @@ html[data-dsh-uiv-hide~="rightbarTabs"] [data-slot="sidebar.right.pane.tab"] {
         setAll: (allHidden) =>
           commit(allHidden ? { ...state, hidden: new Set(REGION_IDS) } : { ...state, hidden: new Set(), dock: true }),
         setDock: (dock) => commit({ ...state, dock }),
+        addCustom: (entry) => commit({ ...state, custom: sanitizeCustom([...state.custom, entry]) }),
+        removeCustom: (selector) => commit({ ...state, custom: state.custom.filter((entry) => entry.selector !== selector) }),
+        clearCustom: () => commit({ ...state, custom: [] }),
+        startPicking: () => commit({ ...state, picking: true }),
+        stopPicking: () => commit({ ...state, picking: false }),
       };
     }
 
@@ -471,6 +599,60 @@ html[data-dsh-uiv-hide~="rightbarTabs"] [data-slot="sidebar.right.pane.tab"] {
         return unsubscribe;
       }, []);
       return state;
+    }
+
+    function cssAttrValue(value) {
+      return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    }
+
+    /** One structural step, indexed among its parent's children so the path stays unique. */
+    function segmentOf(node) {
+      const parent = node.parentElement;
+      const index = Array.prototype.indexOf.call(parent.children, node) + 1;
+      return `${node.tagName.toLowerCase()}:nth-child(${index})`;
+    }
+
+    /**
+     * Turn a picked element into one CSS selector: the nearest slot/region anchor plus the
+     * child path below it. Returns null when the path is not unique or not addressable.
+     */
+    function selectorFor(element) {
+      if (!(element instanceof Element)) return null;
+      if (element === document.body || element === document.documentElement) return null;
+      const slot = element.closest('[data-slot]');
+      const anchor = slot !== null ? slot : element.closest('[data-dsh-uiv-region]');
+      let anchorSelector = 'body';
+      if (anchor !== null && anchor !== element) {
+        anchorSelector =
+          slot !== null
+            ? `[data-slot="${cssAttrValue(anchor.getAttribute('data-slot'))}"]`
+            : `[data-dsh-uiv-region="${cssAttrValue(anchor.getAttribute('data-dsh-uiv-region'))}"]`;
+      }
+      const parts = [];
+      let node = element;
+      while (node !== null && node !== anchor) {
+        parts.unshift(segmentOf(node));
+        node = node.parentElement;
+      }
+      if (node === null) return null;
+      const selector = parts.length === 0 ? anchorSelector : `${anchorSelector} > ${parts.join(' > ')}`;
+      try {
+        return document.querySelectorAll(selector).length === 1 ? selector : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function labelFor(element) {
+      for (const name of ['aria-label', 'title']) {
+        const value = element.getAttribute(name);
+        if (value !== null && value.trim() !== '') return value.trim().slice(0, 40);
+      }
+      const text = (element.textContent ?? '').replace(/\s+/g, ' ').trim();
+      if (text !== '') return text.slice(0, 40);
+      const slot = element.getAttribute('data-slot');
+      if (slot !== null) return slot;
+      return element.tagName.toLowerCase();
     }
 
     /** Mark the shipped frame and its top-level regions with our own data attributes. */
@@ -637,9 +819,127 @@ html[data-dsh-uiv-hide~="rightbarTabs"] [data-slot="sidebar.right.pane.tab"] {
       );
     }
 
+    /** Bottom hint bar plus the capture-phase listeners that turn a click into a selector. */
+    function PickerOverlay({ t }) {
+      const { picking } = useVisibility();
+      const [failed, setFailed] = React.useState(false);
+
+      React.useEffect(() => {
+        if (!picking) {
+          setFailed(false);
+          return undefined;
+        }
+        let hovered = null;
+        const clearHover = () => {
+          if (hovered !== null) hovered.removeAttribute('data-dsh-uiv-hover');
+          hovered = null;
+        };
+        const ignored = (target) =>
+          !(target instanceof Element) || target.closest('[data-dsh-uiv-dock], [data-dsh-uiv-picker]') !== null;
+        const onOver = (event) => {
+          if (ignored(event.target)) {
+            clearHover();
+            return;
+          }
+          if (hovered === event.target) return;
+          clearHover();
+          hovered = event.target;
+          hovered.setAttribute('data-dsh-uiv-hover', '');
+        };
+        const onClick = (event) => {
+          if (ignored(event.target)) return;
+          event.preventDefault();
+          event.stopPropagation();
+          const selector = selectorFor(event.target);
+          if (selector === null) {
+            setFailed(true);
+            return;
+          }
+          visibility.addCustom({ selector, label: labelFor(event.target) });
+          clearHover();
+          visibility.stopPicking();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') return;
+          event.preventDefault();
+          event.stopPropagation();
+          visibility.stopPicking();
+        };
+        document.documentElement.setAttribute('data-dsh-uiv-picking', '');
+        document.addEventListener('pointerover', onOver, true);
+        document.addEventListener('click', onClick, true);
+        document.addEventListener('keydown', onKeyDown, true);
+        return () => {
+          clearHover();
+          document.documentElement.removeAttribute('data-dsh-uiv-picking');
+          document.removeEventListener('pointerover', onOver, true);
+          document.removeEventListener('click', onClick, true);
+          document.removeEventListener('keydown', onKeyDown, true);
+        };
+      }, [picking]);
+
+      if (!picking) return null;
+      return h(
+        'div',
+        { 'data-dsh-uiv-picker': '', className: 'dsh-uiv-pickbar' },
+        h('span', null, failed ? t('pickFailed') : t('pickHint')),
+        h(
+          'button',
+          { type: 'button', className: 'dsh-uiv-pickcancel', onClick: () => visibility.stopPicking() },
+          t('pickCancel'),
+        ),
+      );
+    }
+
+    /** The picked-element list plus its two entry points. */
+    function PickedSection({ t, custom }) {
+      return [
+        h('div', { className: 'dsh-uiv-section', key: 'picked-title' }, t('customSection')),
+        custom.length === 0
+          ? h('div', { className: 'dsh-uiv-empty', key: 'picked-empty' }, t('customEmpty'))
+          : custom.map((entry) =>
+              h(
+                'div',
+                { className: 'dsh-uiv-row', key: entry.selector },
+                h('span', { className: 'dsh-uiv-label', title: entry.selector }, entry.label),
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'dsh-uiv-remove',
+                    'aria-label': t('removePicked'),
+                    onClick: () => visibility.removeCustom(entry.selector),
+                  },
+                  '×',
+                ),
+              ),
+            ),
+        h(
+          'div',
+          { className: 'dsh-uiv-actions', key: 'picked-actions' },
+          h(
+            'button',
+            {
+              type: 'button',
+              className: 'dsh-uiv-action dsh-uiv-action--accent',
+              onClick: () => visibility.startPicking(),
+            },
+            t('pickElement'),
+          ),
+          custom.length > 0
+            ? h(
+                'button',
+                { type: 'button', className: 'dsh-uiv-action', onClick: () => visibility.clearCustom() },
+                t('clearPicked'),
+              )
+            : null,
+        ),
+      ];
+    }
+
     function Dock({ t }) {
       const [open, setOpen] = React.useState(false);
-      const { hidden, dock } = useVisibility();
+      const { hidden, dock, custom } = useVisibility();
       const dockRef = React.useRef(null);
       const frameRef = React.useRef(null);
       const hiddenRef = React.useRef(hidden);
@@ -714,6 +1014,7 @@ html[data-dsh-uiv-hide~="rightbarTabs"] [data-slot="sidebar.right.pane.tab"] {
       React.useEffect(() => {
         if (!open) return;
         const onPointerDown = (event) => {
+          if (visibility.get().picking) return;
           if (dockRef.current !== null && !dockRef.current.contains(event.target)) setOpen(false);
         };
         const onKeyDown = (event) => {
@@ -774,6 +1075,8 @@ html[data-dsh-uiv-hide~="rightbarTabs"] [data-slot="sidebar.right.pane.tab"] {
             ),
             h('div', { className: 'dsh-uiv-sep' }),
             h(RegionSwitches, { t, hidden, onToggle: toggleRegion }),
+            h('div', { className: 'dsh-uiv-sep' }),
+            h(PickedSection, { t, custom }),
             h('div', { className: 'dsh-uiv-sep' }),
             h('div', { className: 'dsh-uiv-section' }, t('pluginSection')),
             h(
@@ -844,7 +1147,7 @@ html[data-dsh-uiv-hide~="rightbarTabs"] [data-slot="sidebar.right.pane.tab"] {
 
     /** The Settings page: the same switches as the floating panel, reachable while the button is hidden. */
     function SettingsSection({ t }) {
-      const { hidden, dock } = useVisibility();
+      const { hidden, dock, custom } = useVisibility();
 
       return h(
         'div',
@@ -863,6 +1166,8 @@ html[data-dsh-uiv-hide~="rightbarTabs"] [data-slot="sidebar.right.pane.tab"] {
         ),
         h('div', { className: 'dsh-uiv-sep' }),
         h(RegionSwitches, { t, hidden, onToggle: (id) => visibility.toggleRegion(id) }),
+        h('div', { className: 'dsh-uiv-sep' }),
+        h(PickedSection, { t, custom }),
         h('div', { className: 'dsh-uiv-sep' }),
         h('div', { className: 'dsh-uiv-section' }, t('pluginSection')),
         h(
@@ -934,6 +1239,21 @@ html[data-dsh-uiv-hide~="rightbarTabs"] [data-slot="sidebar.right.pane.tab"] {
               ),
             ),
           'ui-visibility: floating dock',
+        );
+        ctx.effect(
+          () =>
+            ctx.slots.inject('shell.overlay', () =>
+              ctx.slots.register(
+                {
+                  name: 'shell.overlay',
+                  id: 'ui-visibility-picker',
+                  order: 2001,
+                  locale: NS,
+                },
+                PickerOverlay,
+              ),
+            ),
+          'ui-visibility: element picker',
         );
         ctx.effect(
           () =>
