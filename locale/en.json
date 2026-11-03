@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "UI Visibility",
+    "description": "Show or hide every DSH interface region from a floating panel or the Settings page: sidebar, session header, transcript, composer, right panel, overlays. The floating button can hide itself; a fresh install starts with the composer and the floating button hidden."
+  }
+}

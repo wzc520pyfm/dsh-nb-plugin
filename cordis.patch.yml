@@ -1,0 +1,3 @@
+- insert:
+    - id: ui-visibility
+      name: 'dsg-nb-plugin'
