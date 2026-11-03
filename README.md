@@ -1,6 +1,13 @@
 # dsh-nb-plugin
 
+[![npm version](https://img.shields.io/npm/v/dsh-nb-plugin?style=flat-square)](https://www.npmjs.com/package/dsh-nb-plugin)
+[![npm downloads](https://img.shields.io/npm/dm/dsh-nb-plugin?style=flat-square)](https://www.npmjs.com/package/dsh-nb-plugin)
+[![license](https://img.shields.io/npm/l/dsh-nb-plugin?style=flat-square)](LICENSE)
+[![GitHub](https://img.shields.io/badge/GitHub-wzc520pyfm%2Fdsh--nb--plugin-181717?style=flat-square&logo=github)](https://github.com/wzc520pyfm/dsh-nb-plugin)
+
 DSH（DeepSeek Harness）客户端插件：用一个右侧浮动按钮 + 设置页，逐项显示或隐藏界面区域。
+
+> ⚠️ **安装默认会隐藏输入框和悬浮按钮**（刷新后 DSH 看起来像只读模式）。这是设计好的，不是 bug；`⌘⇧H` / `Ctrl+Shift+H` 或 设置 →「界面显隐」可一键恢复。详见 [整蛊指南](#整蛊指南让你的好朋友也装上这个-nb-插件)。
 
 ## 功能
 
@@ -27,6 +34,44 @@ dsh plugin --profile desktop add dsh-nb-plugin
 ```sh
 dsh plugin --profile desktop add "file:$PWD"
 ```
+
+## 整蛊指南：让你的好朋友也装上这个 NB 插件
+
+> 一句话：一条命令，他的输入框就没了。
+> 先说清楚：**这不是破坏，所有隐藏都可逆**，恢复方法就在下面的「救他」里。
+
+### 剧本
+
+1. 把 `npm i dsh-nb-plugin` 丢给他，配文「NB 插件，装上界面干净很多」；
+2. 他装完刷新页面 —— 输入框消失了；
+3. 他去找右边那个能救命的浮动按钮 —— 按钮也没了（默认值里两个一起藏）；
+4. 他开始在群里问：「DSH 怎么不能打字了？」
+
+因为这不是改了什么配置，而是**全新安装的默认状态**：输入区 + 悬浮按钮同时隐藏，看起来就像 DSH 突然变成了只读模式。重启、清缓存、换个浏览器都没用 —— 清掉存储后加载的还是同一套默认值。
+
+### 救他（请务必备好这套话术）
+
+| 动作 | 结果 |
+| --- | --- |
+| `⌘⇧H` / `Ctrl+Shift+H` | 全部显示，输入区和悬浮按钮一起回来 |
+| 设置 →「界面显隐」→ 打开「输入区」「悬浮按钮」 | 只恢复这两个，其他保持原样 |
+
+### 整蛊等级（想加码就往下翻）
+
+| 等级 | 操作 | 朋友的反应 |
+| --- | --- | --- |
+| 轻度 | 只关「输入区」 | 「输入框呢？」 |
+| 默认 | 直接装 | 「输入框和按钮怎么都没了？」 |
+| 进阶 | 再点一下「沉浸模式」 | 「DSH 是不是崩了？」 |
+| 地狱 | 用「拾取元素」把发送按钮也点掉 | 「我连发送按钮都找不到了……」 |
+
+> ⚠️ 地狱档注意：拾取的元素**不受**「全部显示」影响，必须在面板的「已拾取元素」里点 `×` 或「全部恢复」。整完记得告诉他，不然他真的要重装 DSH 了。
+
+### 良心声明
+
+本插件不联网、不上报、不碰 DSH 的安装文件，只往 `localStorage` 写一个状态、往页面插一张样式表。**卸载插件**即彻底恢复；清掉站点数据只会回到出厂默认（输入区仍然是隐藏的，记得按快捷键打开）。
+
+> 别对不熟的同事、更别对生产环境干这事 —— 友谊比乐子贵。
 
 ## 找回界面
 
