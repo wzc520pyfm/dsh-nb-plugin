@@ -37,7 +37,7 @@ window.__ModuleLoader__.load({
     const GROUPS = ['groupSidebar', 'groupSession', 'groupShell'];
     const STORAGE_KEY = 'dsh.ui-visibility.v2';
     const LEGACY_STORAGE_KEY = 'dsh.ui-visibility.v1';
-    /* A fresh install hides the composer and its own floating button; the Settings page brings both back. */
+    /* A fresh install hides the composer and its own floating button; the plugin detail page brings both back. */
     const DEFAULT_HIDDEN = ['composer'];
     const DEFAULT_DOCK = false;
     const NS = 'uiVisibility';
@@ -92,7 +92,7 @@ window.__ModuleLoader__.load({
       settingsNav: '界面显隐',
       settingsTitle: '界面显隐',
       settingsDesc: '逐个显示或隐藏界面区域。设置在这里修改，和浮动面板共用同一份状态。',
-      settingsHint: '悬浮按钮被隐藏后，仍可从本页或快捷键 ⌘⇧H / Ctrl+Shift+H 恢复。',
+      settingsHint: '悬浮按钮被隐藏后，仍可从插件详情页或快捷键 ⌘⇧H / Ctrl+Shift+H 恢复。',
       shortcutHint: '快捷键：显示 / 隐藏全部区域',
     };
 
@@ -145,7 +145,7 @@ window.__ModuleLoader__.load({
       settingsNav: 'UI Visibility',
       settingsTitle: 'UI Visibility',
       settingsDesc: 'Show or hide each interface region. This page and the floating panel share one state.',
-      settingsHint: 'With the floating button hidden, restore it here or with ⌘⇧H / Ctrl+Shift+H.',
+      settingsHint: 'With the floating button hidden, restore it from plugin detail page or with ⌘⇧H / Ctrl+Shift+H.',
       shortcutHint: 'Shortcut: show / hide every region',
     };
 
@@ -550,7 +550,7 @@ html[data-dsh-uiv-hide~="heroPreset"] [data-slot="conversation.hero.agentPreset"
     }
 
     /**
-     * One observable state shared by the floating dock and the Settings page:
+     * One observable state shared by the floating dock and the plugin detail page:
      * both mount in different roots but always agree.
      */
     function createVisibilityStore() {
@@ -1121,7 +1121,7 @@ html[data-dsh-uiv-hide~="heroPreset"] [data-slot="conversation.hero.agentPreset"
           )
         : null;
 
-      /* The button can hide itself; the Settings page and the shortcut bring it back. */
+      /* The button can hide itself; the plugin detail page and the shortcut bring it back. */
       if (!dock) return null;
 
       return h(
@@ -1145,7 +1145,7 @@ html[data-dsh-uiv-hide~="heroPreset"] [data-slot="conversation.hero.agentPreset"
       );
     }
 
-    /** The Settings page: the same switches as the floating panel, reachable while the button is hidden. */
+    /** The UI visibility config section, shown on the plugin detail page with the same switches as the floating panel. */
     function SettingsSection({ t }) {
       const { hidden, dock, custom } = useVisibility();
 
@@ -1257,19 +1257,18 @@ html[data-dsh-uiv-hide~="heroPreset"] [data-slot="conversation.hero.agentPreset"
         );
         ctx.effect(
           () =>
-            ctx.slots.inject('settings.section', () =>
+            ctx.slots.inject('plugins.bundle.config', () =>
               ctx.slots.register(
                 {
-                  name: 'settings.section',
-                  id: 'ui-visibility',
-                  order: 60,
-                  label: () => t('settingsNav'),
+                  name: 'plugins.bundle.config',
+                  key: 'dsh-nb-plugin',
+                  locale: NS,
                   inject: () => ({ t }),
                 },
                 SettingsSection,
               ),
             ),
-          'ui-visibility: settings section',
+          'ui-visibility: plugins bundle config',
         );
       },
     };
