@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "UI Visibility",
-    "description": "Show or hide every DSH interface region from a floating panel or the Settings page: 22 switches grouped into sidebar, session and shell, plus a picker that hides whatever element you click. The floating button can hide itself; a fresh install starts with the composer and the floating button hidden."
+    "description": "Show or hide every DSH interface region from a floating panel or the Settings page: 22 switches grouped into sidebar, session and shell, plus a picker that hides whatever you click — including inside open Shadow DOM, with upward expansion and hide-similar. The floating button can hide itself; a fresh install starts with the composer and the floating button hidden."
   }
 }
